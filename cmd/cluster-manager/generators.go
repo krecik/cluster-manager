@@ -133,6 +133,7 @@ func generateObjectsGeneratorApplication(clusterConfig *ClusterConfigFile, appli
 		RepoUrl:       ObjectGeneratorRepoUrl,
 		Path:          "chart",
 		Values:        valuesStr,
+		ReleaseName:   ObjectsGeneratorAppName,
 		Server:        clusterConfig.Cluster.Server,
 		Namespace:     "kube-system",
 		AutoSync:      true,
