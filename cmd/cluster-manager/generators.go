@@ -131,6 +131,7 @@ func generateObjectsGeneratorApplication(clusterConfig *ClusterConfigFile, appli
 		CascadeDelete: true,
 		Project:       clusterConfig.Cluster.Name,
 		RepoUrl:       ObjectGeneratorRepoUrl,
+		Path:          "chart",
 		Values:        valuesStr,
 		Server:        clusterConfig.Cluster.Server,
 		Namespace:     "kube-system",
