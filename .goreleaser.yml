@@ -4,13 +4,24 @@ before:
 builds:
 - env:
   - CGO_ENABLED=0
+  binary: kubecare-cluster-manager
+  dir: ./cmd/cluster-manager
+  goarch:
+  - arm
+  - arm64
+  - amd64
+  - ppc64le
+  goos:
+  - windows
+  - darwin
+  - linux
 archives:
-- replacements:
-    darwin: Darwin
-    linux: Linux
-    windows: Windows
-    386: i386
-    amd64: x86_64
+- name_template: "kubecare-cluster-manager_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  format_overrides:
+  - goos: windows
+    format: zip
+  files:
+  - none*
 checksum:
   name_template: 'checksums.txt'
 snapshot:
