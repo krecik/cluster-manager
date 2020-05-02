@@ -1,6 +1,6 @@
 namespaces:
 {{- range .Namespaces }}
-- {{ . }}
+- name: {{ . }}
 {{- end }}
 
 oauth2ProxyIngresses:
