@@ -13,13 +13,6 @@ import (
 	"strings"
 )
 
-const (
-	ObjectGeneratorRepoUrl = "https://github.com/kubecare/cluster-manager-objects-generator.git"
-	ClustersDir = "clusters"
-	ClusterFile = "cluster.yaml"
-	AddonsDir = "addons"
-	ObjectsGeneratorAppNamePlaceholder = "kubecare-objects-generator-%s"
-)
 
 func main() {
 	pkger.Include("/templates")
@@ -97,32 +90,6 @@ func main() {
 	for _, proj := range projectViewModels {
 		renderTemplate("/templates/project.yaml", proj)
 	}
-}
-
-func indent(text, indent string) string {
-	if text == "" {
-		return ""
-	}
-	if text[len(text)-1:] == "\n" {
-		result := ""
-		for _, j := range strings.Split(text[:len(text)-1], "\n") {
-			result += indent + j + "\n"
-		}
-		return result
-	}
-	result := ""
-	for _, j := range strings.Split(strings.TrimRight(text, "\n"), "\n") {
-		result += indent + j + "\n"
-	}
-	return result[:len(result)-1]
-}
-
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
 }
 
 func getContext() (*EnvironmentContext, error) {

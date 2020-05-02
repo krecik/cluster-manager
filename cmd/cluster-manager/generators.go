@@ -127,7 +127,7 @@ func generateObjectsGeneratorApplication(clusterConfig *ClusterConfigFile, appli
 	valuesStr := renderTemplateToString("/templates/objects-generator-values.yaml", values)
 
 	app := &ApplicationViewModel{
-		Name:          fmt.Sprintf(ObjectsGeneratorAppNamePlaceholder, clusterConfig.Cluster.Name),
+		Name:          ObjectsGeneratorAppName,
 		CascadeDelete: true,
 		Project:       clusterConfig.Cluster.Name,
 		RepoUrl:       ObjectGeneratorRepoUrl,
