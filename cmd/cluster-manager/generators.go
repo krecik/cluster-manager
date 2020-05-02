@@ -14,6 +14,7 @@ func generateKustomizeApplication(app *KustomizeApplication, clusterConfig *Clus
 	autoSync := fallbackBoolWithDefault(true, app.AutoSync, clusterConfig.Cluster.AutoSync)
 	name := fallbackString(app.Name)
 	namespace := fallbackStringWithDefault("default", app.Namespace, app.Name)
+	targetRevision := fallbackStringWithDefault("", app.TargetRevision)
 
 	appViewModel := &ApplicationViewModel{
 		Name:           name,
@@ -23,7 +24,7 @@ func generateKustomizeApplication(app *KustomizeApplication, clusterConfig *Clus
 		Server:         clusterConfig.Cluster.Server,
 		Path:           app.Path,
 		AutoSync:       autoSync,
-		TargetRevision: *app.TargetRevision,
+		TargetRevision: targetRevision,
 		Namespace:      namespace,
 	}
 
@@ -81,15 +82,15 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 	path := fallbackString(&app.Path, &addon.Path)
 
 	// we merge app and addon values into app.Values
-	mergeStructs(app.Values, addon.Values)
+	values := mergeStructs(app.Values, addon.Values)
 
 	valueFiles := append(app.ValueFiles, addon.ValueFiles...)
 	settings := mergeDicts(addon.Settings, app.Settings)
 	parameters := mergeDicts(addon.Parameters, app.Parameters)
 
-	values := yamlSerializeToString(app.Values)
+	valuesYaml := yamlSerializeToString(values)
 	for find, replace := range settings {
-		values = strings.ReplaceAll(values, fmt.Sprintf("%%SETTINGS_%s", find), replace)
+		valuesYaml = strings.ReplaceAll(valuesYaml, fmt.Sprintf("%%SETTINGS_%s", find), replace)
 	}
 
 	appViewModel := &ApplicationViewModel{
@@ -101,7 +102,7 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 		Path:           path,
 		AutoSync:       autoSync,
 		TargetRevision: targetRevision,
-		Values:         values,
+		Values:         valuesYaml,
 		ValueFiles:     valueFiles,
 		ReleaseName:    releaseName,
 		Parameters:     parameters,
