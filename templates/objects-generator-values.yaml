@@ -1,0 +1,13 @@
+namespaces:
+{{- range .Namespaces }}
+- {{ . }}
+{{- end }}
+
+oauth2ProxyIngresses:
+{{- range .Oauth2ProxyIngresses}}
+- name: {{ .Name }}
+  namespace: {{ .Namespace }}
+  {{- if .SecretName }}
+  secretName: {{ .SecretName }}
+  {{- end }}
+{{- end }}
