@@ -23,9 +23,9 @@ archives:
   files:
   - none*
 checksum:
-  name_template: 'checksums.txt'
+  name_template: 'checksums_{{ .Version }}.txt'
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  name_template: "{{ .Tag }}"
 changelog:
   sort: asc
   filters:
