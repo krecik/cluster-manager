@@ -79,6 +79,7 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 	releaseName := fallbackString(app.ReleaseName, addon.ReleaseName, app.Name, app.Addon)
 	namespace := fallbackStringWithDefault("default", app.Namespace, addon.Namespace, app.Name, app.Addon)
 	targetRevision := fallbackStringWithDefault("", app.TargetRevision, addon.TargetRevision)
+	oauth2ProxyIngressHost := fallbackStringWithDefault("", app.Oauth2ProxyIngressHost, addon.Oauth2ProxyIngressHost)
 	path := fallbackString(&app.Path, &addon.Path)
 
 	// we merge app and addon values into app.Values
@@ -94,19 +95,20 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 	}
 
 	appViewModel := &ApplicationViewModel{
-		Name:           name,
-		Project:        clusterConfig.Cluster.Name,
-		CascadeDelete:  cascadeDelete,
-		RepoUrl:        repoUrl,
-		Server:         clusterConfig.Cluster.Server,
-		Path:           path,
-		AutoSync:       autoSync,
-		TargetRevision: targetRevision,
-		Values:         valuesYaml,
-		ValueFiles:     valueFiles,
-		ReleaseName:    releaseName,
-		Parameters:     parameters,
-		Namespace:      namespace,
+		Name:                   name,
+		Project:                clusterConfig.Cluster.Name,
+		CascadeDelete:          cascadeDelete,
+		RepoUrl:                repoUrl,
+		Server:                 clusterConfig.Cluster.Server,
+		Path:                   path,
+		AutoSync:               autoSync,
+		TargetRevision:         targetRevision,
+		Values:                 valuesYaml,
+		ValueFiles:             valueFiles,
+		ReleaseName:            releaseName,
+		Parameters:             parameters,
+		Namespace:              namespace,
+		OAuth2ProxyIngressHost: oauth2ProxyIngressHost,
 	}
 
 	return appViewModel, nil
@@ -114,14 +116,25 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 
 func generateObjectsGeneratorApplication(clusterConfig *ClusterConfigFile, applications []*ApplicationViewModel) (*ApplicationViewModel, error) {
 	var namespaces []string
+	oauth2ProxyIngresses := []Oauth2ProxyIngress{}
+
 	for _, app := range applications {
 		if app.Namespace != "default" || app.Namespace != "kube-system" {
 			namespaces = append(namespaces, app.Namespace)
 		}
+
+		if app.OAuth2ProxyIngressHost != "" {
+			oauth2ProxyIngresses = append(oauth2ProxyIngresses, Oauth2ProxyIngress{
+				Name:      app.Name,
+				Namespace: app.Namespace,
+				Host:      app.OAuth2ProxyIngressHost,
+			})
+		}
 	}
 
 	values := &ObjectsGeneratorViewModel{
-		Namespaces: namespaces,
+		Namespaces:           namespaces,
+		Oauth2ProxyIngresses: oauth2ProxyIngresses,
 	}
 
 	valuesStr := renderTemplateToString("/templates/objects-generator-values.yaml", values)

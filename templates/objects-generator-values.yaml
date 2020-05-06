@@ -10,4 +10,5 @@ oauth2ProxyIngresses:
   {{- if .SecretName }}
   secretName: {{ .SecretName }}
   {{- end }}
+  host: {{ .Host }}
 {{- end }}

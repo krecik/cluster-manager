@@ -33,13 +33,14 @@ type Application struct {
 }
 
 type HelmApplication struct {
-	Application `yaml:",inline"`
-	Addon       *string                     `yaml:"addon"`
-	ReleaseName *string                     `yaml:"releaseName"`
-	Parameters  map[string]string           `yaml:"parameters"`
-	Settings    map[string]string           `yaml:"settings"`
-	ValueFiles  []string                    `yaml:"valueFiles"`
-	Values      map[interface{}]interface{} `yaml:"values"`
+	Application            `yaml:",inline"`
+	Addon                  *string                     `yaml:"addon"`
+	ReleaseName            *string                     `yaml:"releaseName"`
+	Parameters             map[string]string           `yaml:"parameters"`
+	Settings               map[string]string           `yaml:"settings"`
+	ValueFiles             []string                    `yaml:"valueFiles"`
+	Values                 map[interface{}]interface{} `yaml:"values"`
+	Oauth2ProxyIngressHost *string                     `yaml:"oauth2ProxyIngressHost"`
 }
 
 type KustomizeApplication struct {
@@ -70,17 +71,19 @@ type ApplicationViewModel struct {
 	TargetRevision string
 
 	// helm specific
-	Values      string
-	ValueFiles  []string
-	ReleaseName string
-	Parameters  map[string]string
-	Namespace   string
+	Values                 string
+	ValueFiles             []string
+	ReleaseName            string
+	Parameters             map[string]string
+	Namespace              string
+	OAuth2ProxyIngressHost string
 }
 
 type Oauth2ProxyIngress struct {
 	Name       string
 	Namespace  string
 	SecretName string
+	Host       string
 }
 
 type ObjectsGeneratorViewModel struct {
