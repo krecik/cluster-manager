@@ -13,12 +13,13 @@ type ClusterConfigFile struct {
 }
 
 type ClusterConfig struct {
-	Name          string         `yaml:"name"`
-	Server        string         `yaml:"server"`
-	AutoSync      *bool          `yaml:"autoSync"`
-	ProjectRoles  []*ProjectRole `yaml:"projectRoles"`
-	CascadeDelete *bool          `yaml:"cascadeDelete"`
-	RepoUrl       *string        `yaml:"repoURL"`
+	Name          string            `yaml:"name"`
+	Server        string            `yaml:"server"`
+	AutoSync      *bool             `yaml:"autoSync"`
+	ProjectRoles  []*ProjectRole    `yaml:"projectRoles"`
+	CascadeDelete *bool             `yaml:"cascadeDelete"`
+	RepoUrl       *string           `yaml:"repoURL"`
+	Settings      map[string]string `yaml:"settings"`
 }
 
 type Application struct {
@@ -32,15 +33,21 @@ type Application struct {
 	Namespace      *string `yaml:"namespace"`
 }
 
-type HelmApplication struct {
+type HelmAddon struct {
 	Application            `yaml:",inline"`
-	Addon                  *string                     `yaml:"addon"`
-	ReleaseName            *string                     `yaml:"releaseName"`
-	Parameters             map[string]string           `yaml:"parameters"`
-	Settings               map[string]string           `yaml:"settings"`
-	ValueFiles             []string                    `yaml:"valueFiles"`
-	Values                 map[interface{}]interface{} `yaml:"values"`
-	Oauth2ProxyIngressHost *string                     `yaml:"oauth2ProxyIngressHost"`
+	ReleaseName            *string                                `yaml:"releaseName"`
+	Parameters             map[string]string                      `yaml:"parameters"`
+	Settings               map[string]string                      `yaml:"settings"`
+	ValueFiles             []string                               `yaml:"valueFiles"`
+	Values                 map[interface{}]interface{}            `yaml:"values"`
+	Oauth2ProxyIngressHost *string                                `yaml:"oauth2ProxyIngressHost"`
+	OverlayDefinitions     map[string]map[interface{}]interface{} `yaml:"overlayDefinitions"`
+}
+
+type HelmApplication struct {
+	HelmAddon `yaml:",inline"`
+	Addon     *string  `yaml:"addon"`
+	Overlays  []string `yaml:"overlays"`
 }
 
 type KustomizeApplication struct {

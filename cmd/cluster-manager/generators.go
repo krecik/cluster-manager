@@ -46,7 +46,7 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 		}
 	}
 
-	addon := &HelmApplication{}
+	addon := &HelmAddon{}
 	if app.Addon != nil {
 		clusterAddonFile := path.Join(context.RepoPath, ClustersDir, clusterConfig.Cluster.Name, AddonsDir, fmt.Sprintf("%s.yaml", *app.Addon))
 		repoAddonFile := path.Join(context.RepoPath, AddonsDir, fmt.Sprintf("%s.yaml", *app.Addon))
@@ -85,13 +85,26 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 	// we merge app and addon values into app.Values
 	values := mergeStructs(app.Values, addon.Values)
 
+	if addon.OverlayDefinitions != nil {
+		for _, overlay := range app.Overlays {
+			overlayDefinition, ok := addon.OverlayDefinitions[overlay]
+			if !ok {
+				continue
+			}
+			values = mergeStructs(values, overlayDefinition)
+		}
+	}
+
 	valueFiles := append(app.ValueFiles, addon.ValueFiles...)
-	settings := mergeDicts(addon.Settings, app.Settings)
+	settings := mergeDicts(addon.Settings, clusterConfig.Cluster.Settings, app.Settings)
 	parameters := mergeDicts(addon.Parameters, app.Parameters)
 
 	valuesYaml := yamlSerializeToString(values)
 	for find, replace := range settings {
-		valuesYaml = strings.ReplaceAll(valuesYaml, fmt.Sprintf("%%SETTINGS_%s", find), replace)
+		findFmt := fmt.Sprintf("%%SETTINGS_%s", find)
+		valuesYaml = strings.ReplaceAll(valuesYaml, findFmt, replace)
+		// we allow using settings in oauth2ProxyIngressHost for convenience
+		oauth2ProxyIngressHost = strings.ReplaceAll(oauth2ProxyIngressHost, findFmt, replace)
 	}
 
 	appViewModel := &ApplicationViewModel{
