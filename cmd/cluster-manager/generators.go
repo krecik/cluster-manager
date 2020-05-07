@@ -48,15 +48,21 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 
 	addon := &HelmAddon{}
 	if app.Addon != nil {
+		baseAddonFile := path.Join(context.BasePath, AddonsDir, fmt.Sprintf("%s.yaml", *app.Addon))
 		clusterAddonFile := path.Join(context.RepoPath, ClustersDir, clusterConfig.Cluster.Name, AddonsDir, fmt.Sprintf("%s.yaml", *app.Addon))
 		repoAddonFile := path.Join(context.RepoPath, AddonsDir, fmt.Sprintf("%s.yaml", *app.Addon))
 
 		file := ""
 		if fileExists(clusterAddonFile) {
 			file = clusterAddonFile
-		}
-		if fileExists(repoAddonFile) {
+		} else if fileExists(repoAddonFile) {
 			file = repoAddonFile
+		} else if fileExists(baseAddonFile) {
+			file = baseAddonFile
+		}
+
+		if file == "" {
+			fatal("unable to load Helm addon file:", app.Addon)
 		}
 
 		bytes, err := ioutil.ReadFile(file)
