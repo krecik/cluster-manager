@@ -26,3 +26,7 @@ then
 else
   git clone https://github.com/kubecare/cluster-manager-addons.git addons
 fi
+
+echo "==> Done"
+
+exit 0
