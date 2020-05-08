@@ -76,7 +76,11 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 			if !ok {
 				continue
 			}
-			values = mergeStructs(values, overlayDefinition)
+			values = mergeStructs(values, overlayDefinition.Values)
+
+			if overlayDefinition.Oauth2ProxyIngressHost != nil {
+				oauth2ProxyIngressHost = *overlayDefinition.Oauth2ProxyIngressHost
+			}
 		}
 	}
 

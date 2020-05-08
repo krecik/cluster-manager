@@ -35,13 +35,18 @@ type Application struct {
 
 type HelmAddon struct {
 	Application            `yaml:",inline"`
-	ReleaseName            *string                                `yaml:"releaseName"`
-	Parameters             map[string]string                      `yaml:"parameters"`
-	Settings               map[string]string                      `yaml:"settings"`
-	ValueFiles             []string                               `yaml:"valueFiles"`
-	Values                 map[interface{}]interface{}            `yaml:"values"`
-	Oauth2ProxyIngressHost *string                                `yaml:"oauth2ProxyIngressHost"`
-	OverlayDefinitions     map[string]map[interface{}]interface{} `yaml:"overlayDefinitions"`
+	ReleaseName            *string                      `yaml:"releaseName"`
+	Parameters             map[string]string            `yaml:"parameters"`
+	Settings               map[string]string            `yaml:"settings"`
+	ValueFiles             []string                     `yaml:"valueFiles"`
+	Values                 map[interface{}]interface{}  `yaml:"values"`
+	Oauth2ProxyIngressHost *string                      `yaml:"oauth2ProxyIngressHost"`
+	OverlayDefinitions     map[string]OverlayDefinition `yaml:"overlayDefinitions"`
+}
+
+type OverlayDefinition struct {
+	Oauth2ProxyIngressHost *string                     `yaml:"oauth2ProxyIngressHost"`
+	Values                 map[interface{}]interface{} `yaml:"values"`
 }
 
 type HelmApplication struct {
