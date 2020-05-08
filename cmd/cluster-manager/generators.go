@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -48,29 +49,7 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 
 	addon := &HelmAddon{}
 	if app.Addon != nil {
-		baseAddonFile := path.Join(context.BasePath, AddonsDir, fmt.Sprintf("%s.yaml", *app.Addon))
-		clusterAddonFile := path.Join(context.RepoPath, ClustersDir, clusterConfig.Cluster.Name, AddonsDir, fmt.Sprintf("%s.yaml", *app.Addon))
-		repoAddonFile := path.Join(context.RepoPath, AddonsDir, fmt.Sprintf("%s.yaml", *app.Addon))
-
-		file := ""
-		if fileExists(clusterAddonFile) {
-			file = clusterAddonFile
-		} else if fileExists(repoAddonFile) {
-			file = repoAddonFile
-		} else if fileExists(baseAddonFile) {
-			file = baseAddonFile
-		}
-
-		if file == "" {
-			fatal("unable to load Helm addon file:", app.Addon)
-		}
-
-		bytes, err := ioutil.ReadFile(file)
-		if err != nil {
-			return nil, err
-		}
-
-		err = yaml.Unmarshal(bytes, &addon)
+		err := loadAddon(*app.Addon, clusterConfig.Cluster.Name, context, addon)
 		if err != nil {
 			return nil, err
 		}
@@ -183,4 +162,35 @@ func generateAppProject(config *ClusterConfigFile) (*ProjectViewModel, error) {
 	}
 
 	return project, nil
+}
+
+func loadAddon(addon string, clusterName string, context *EnvironmentContext, out interface{}) (error) {
+	baseAddonFile := path.Join(context.BasePath, AddonsDir, fmt.Sprintf("%s.yaml", addon))
+	clusterAddonFile := path.Join(context.RepoPath, ClustersDir, clusterName, AddonsDir, fmt.Sprintf("%s.yaml", addon))
+	repoAddonFile := path.Join(context.RepoPath, AddonsDir, fmt.Sprintf("%s.yaml", addon))
+
+	file := ""
+	if fileExists(clusterAddonFile) {
+		file = clusterAddonFile
+	} else if fileExists(repoAddonFile) {
+		file = repoAddonFile
+	} else if fileExists(baseAddonFile) {
+		file = baseAddonFile
+	}
+
+	if file == "" {
+		return errors.New(fmt.Sprintf("unable to load Helm addon file: %s", addon))
+	}
+
+	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+
+	err = yaml.Unmarshal(bytes, out)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

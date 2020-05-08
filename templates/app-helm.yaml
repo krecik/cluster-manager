@@ -20,8 +20,8 @@ spec:
       {{- if .Parameters }}
       parameters:
       {{- range $key, $value := .Parameters }}
-      - name: {{ $key }}
-        value: {{ $value }}
+      - name: "{{ $key }}"
+        value: "{{ $value }}"
       {{- end }}
       {{- end }}
       {{- if .Values }}
