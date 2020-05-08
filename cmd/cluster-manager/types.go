@@ -23,7 +23,6 @@ type ClusterConfig struct {
 }
 
 type Application struct {
-	Include        *string `yaml:"include"`
 	Name           *string `yaml:"name"`
 	RepoUrl        *string `yaml:"repoURL"`
 	Path           string  `yaml:"path"`
@@ -51,12 +50,19 @@ type OverlayDefinition struct {
 
 type HelmApplication struct {
 	HelmAddon `yaml:",inline"`
+	Include   *string  `yaml:"include"`
 	Addon     *string  `yaml:"addon"`
 	Overlays  []string `yaml:"overlays"`
 }
 
-type KustomizeApplication struct {
+type KustomizeAddon struct {
 	Application `yaml:",inline"`
+}
+
+type KustomizeApplication struct {
+	KustomizeAddon `yaml:",inline"`
+	Include        *string `yaml:"include"`
+	Addon          *string `yaml:"addon"`
 }
 
 type ProjectRole struct {

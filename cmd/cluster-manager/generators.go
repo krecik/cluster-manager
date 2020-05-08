@@ -10,12 +10,30 @@ import (
 )
 
 func generateKustomizeApplication(app *KustomizeApplication, clusterConfig *ClusterConfigFile, context *EnvironmentContext) (*ApplicationViewModel, error) {
+	if app.Include != nil {
+		err := loadInclude(*app.Include, clusterConfig.Cluster.Name, context, app)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	addon := &KustomizeAddon{}
+	if app.Addon != nil {
+		err := loadAddon(*app.Addon, clusterConfig.Cluster.Name, context, addon)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// intentionally ignoring addon settings here
 	cascadeDelete := fallbackBoolWithDefault(false, app.CascadeDelete, clusterConfig.Cluster.CascadeDelete)
-	repoUrl := fallbackString(app.RepoUrl, clusterConfig.Cluster.RepoUrl, &context.RepoUrl)
 	autoSync := fallbackBoolWithDefault(true, app.AutoSync, clusterConfig.Cluster.AutoSync)
-	name := fallbackString(app.Name)
-	namespace := fallbackStringWithDefault("default", app.Namespace, app.Name)
-	targetRevision := fallbackStringWithDefault("", app.TargetRevision)
+
+	repoUrl := fallbackString(app.RepoUrl, addon.RepoUrl, clusterConfig.Cluster.RepoUrl, &context.RepoUrl)
+	name := fallbackString(app.Name, addon.Name, app.Addon)
+	namespace := fallbackStringWithDefault("default", app.Namespace, addon.Namespace, app.Name, app.Addon)
+	targetRevision := fallbackStringWithDefault("", app.TargetRevision, addon.TargetRevision)
+	path := fallbackString(&app.Path, &addon.Path)
 
 	appViewModel := &ApplicationViewModel{
 		Name:           name,
@@ -23,7 +41,7 @@ func generateKustomizeApplication(app *KustomizeApplication, clusterConfig *Clus
 		CascadeDelete:  cascadeDelete,
 		RepoUrl:        repoUrl,
 		Server:         clusterConfig.Cluster.Server,
-		Path:           app.Path,
+		Path:           path,
 		AutoSync:       autoSync,
 		TargetRevision: targetRevision,
 		Namespace:      namespace,
@@ -34,14 +52,7 @@ func generateKustomizeApplication(app *KustomizeApplication, clusterConfig *Clus
 
 func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigFile, context *EnvironmentContext) (*ApplicationViewModel, error) {
 	if app.Include != nil {
-		includeFile := path.Join(context.RepoPath, ClustersDir, clusterConfig.Cluster.Name, *app.Include)
-
-		bytes, err := ioutil.ReadFile(includeFile)
-		if err != nil {
-			return nil, err
-		}
-
-		err = yaml.Unmarshal(bytes, &app)
+		err := loadInclude(*app.Include, clusterConfig.Cluster.Name, context, app)
 		if err != nil {
 			return nil, err
 		}
@@ -168,7 +179,7 @@ func generateAppProject(config *ClusterConfigFile) (*ProjectViewModel, error) {
 	return project, nil
 }
 
-func loadAddon(addon string, clusterName string, context *EnvironmentContext, out interface{}) (error) {
+func loadAddon(addon string, clusterName string, context *EnvironmentContext, out interface{}) error {
 	baseAddonFile := path.Join(context.BasePath, AddonsDir, fmt.Sprintf("%s.yaml", addon))
 	clusterAddonFile := path.Join(context.RepoPath, ClustersDir, clusterName, AddonsDir, fmt.Sprintf("%s.yaml", addon))
 	repoAddonFile := path.Join(context.RepoPath, AddonsDir, fmt.Sprintf("%s.yaml", addon))
@@ -187,6 +198,22 @@ func loadAddon(addon string, clusterName string, context *EnvironmentContext, ou
 	}
 
 	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+
+	err = yaml.Unmarshal(bytes, out)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func loadInclude(filename string, clusterName string, context *EnvironmentContext, out interface{}) error {
+	includeFile := path.Join(context.RepoPath, ClustersDir, clusterName, filename)
+
+	bytes, err := ioutil.ReadFile(includeFile)
 	if err != nil {
 		return err
 	}
