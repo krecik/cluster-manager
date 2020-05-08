@@ -57,6 +57,8 @@ func mergeStructs(dst, src map[interface{}]interface{}) map[interface{}]interfac
 			}
 		} else if isTable(dv) {
 			log.Printf("warning: destination for %s is a table. Ignoring non-table value %v", key, val)
+		} else {
+			dst[key] = val
 		}
 	}
 	return dst
