@@ -138,7 +138,7 @@ func generateObjectsGeneratorApplication(clusterConfig *ClusterConfigFile, appli
 	oauth2ProxyIngresses := []Oauth2ProxyIngress{}
 
 	for _, app := range applications {
-		if app.Namespace != "default" || app.Namespace != "kube-system" {
+		if app.Namespace != "default" && app.Namespace != "kube-system" {
 			namespaces = append(namespaces, app.Namespace)
 		}
 
