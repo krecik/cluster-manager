@@ -25,6 +25,7 @@ then
   git pull
 else
   git clone https://github.com/kubecare/cluster-manager-addons.git addons
+  chmod -R a+w addons # to allow future updates of the repo
 fi
 
 echo "==> Done"

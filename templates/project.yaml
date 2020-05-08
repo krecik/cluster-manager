@@ -12,6 +12,7 @@ spec:
       server: {{ .Server }}
   sourceRepos:
     - '*'
+  {{- if .ProjectRoles }}
   roles:{{ "\n" }}
   {{- range .ProjectRoles }}
   - name: {{ .Name }}
@@ -28,4 +29,5 @@ spec:
     - iat: {{ . }}
     {{- end }}
     {{- end }}
+  {{- end }}
   {{- end }}
