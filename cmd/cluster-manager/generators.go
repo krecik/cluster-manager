@@ -136,6 +136,7 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 func generateObjectsGeneratorApplication(clusterConfig *ClusterConfigFile, applications []*ApplicationViewModel) (*ApplicationViewModel, error) {
 	var namespaces []string
 	oauth2ProxyIngresses := []Oauth2ProxyIngress{}
+	autoSync := fallbackBoolWithDefault(true, clusterConfig.Cluster.AutoSync)
 
 	for _, app := range applications {
 		if app.Namespace != "default" && app.Namespace != "kube-system" {
@@ -168,7 +169,7 @@ func generateObjectsGeneratorApplication(clusterConfig *ClusterConfigFile, appli
 		ReleaseName:   ObjectsGeneratorAppName,
 		Server:        clusterConfig.Cluster.Server,
 		Namespace:     "kube-system",
-		AutoSync:      true,
+		AutoSync:      autoSync,
 	}
 
 	return app, nil
