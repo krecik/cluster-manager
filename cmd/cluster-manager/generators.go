@@ -100,11 +100,13 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 	parameters := mergeDicts(addon.Parameters, app.Parameters)
 
 	valuesYaml := yamlSerializeToString(values)
-	for find, replace := range settings {
-		findFmt := fmt.Sprintf("%%SETTINGS_%s", find)
-		valuesYaml = strings.ReplaceAll(valuesYaml, findFmt, replace)
-		// we allow using settings in oauth2ProxyIngressHost for convenience
-		oauth2ProxyIngressHost = strings.ReplaceAll(oauth2ProxyIngressHost, findFmt, replace)
+	for i := 0; i < len(settings); i++ { // run multiple times so settings can refer to other settings
+		for find, replace := range settings {
+			findFmt := fmt.Sprintf("%%SETTINGS_%s", find)
+			valuesYaml = strings.ReplaceAll(valuesYaml, findFmt, replace)
+			// we allow using settings in oauth2ProxyIngressHost for convenience
+			oauth2ProxyIngressHost = strings.ReplaceAll(oauth2ProxyIngressHost, findFmt, replace)
+		}
 	}
 
 	appViewModel := &ApplicationViewModel{
