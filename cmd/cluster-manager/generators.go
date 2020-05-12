@@ -9,6 +9,52 @@ import (
 	"strings"
 )
 
+func generatePluginApplication(app *PluginApplication, clusterConfig *ClusterConfigFile, context *EnvironmentContext) (*ApplicationViewModel, error) {
+	if app.Include != nil {
+		err := loadInclude(*app.Include, clusterConfig.Cluster.Name, context, app)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	addon := &PluginAddon{}
+	if app.Addon != nil {
+		err := loadAddon(*app.Addon, clusterConfig.Cluster.Name, context, addon)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// intentionally ignoring addon settings here
+	cascadeDelete := fallbackBoolWithDefault(false, app.CascadeDelete, clusterConfig.Cluster.CascadeDelete)
+	autoSync := fallbackBoolWithDefault(true, app.AutoSync, clusterConfig.Cluster.AutoSync)
+
+	repoUrl := fallbackString(app.RepoUrl, addon.RepoUrl, clusterConfig.Cluster.RepoUrl, &context.RepoUrl)
+	name := fallbackString(app.Name, addon.Name, app.Addon)
+	namespace := fallbackStringWithDefault("default", app.Namespace, addon.Namespace, app.Name, app.Addon)
+	targetRevision := fallbackStringWithDefault("", app.TargetRevision, addon.TargetRevision)
+	path := fallbackString(&app.Path, &addon.Path)
+
+	pluginName := fallbackString(&app.PluginName, &addon.PluginName)
+	pluginEnv := mergeDicts(addon.PluginEnv, app.PluginEnv)
+
+	appViewModel := &ApplicationViewModel{
+		Name:           name,
+		Project:        clusterConfig.Cluster.Name,
+		CascadeDelete:  cascadeDelete,
+		RepoUrl:        repoUrl,
+		Server:         clusterConfig.Cluster.Server,
+		Path:           path,
+		AutoSync:       autoSync,
+		TargetRevision: targetRevision,
+		Namespace:      namespace,
+		PluginName:     pluginName,
+		PluginEnv:      pluginEnv,
+	}
+
+	return appViewModel, nil
+}
+
 func generateKustomizeApplication(app *KustomizeApplication, clusterConfig *ClusterConfigFile, context *EnvironmentContext) (*ApplicationViewModel, error) {
 	if app.Include != nil {
 		err := loadInclude(*app.Include, clusterConfig.Cluster.Name, context, app)

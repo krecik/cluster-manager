@@ -10,6 +10,7 @@ type ClusterConfigFile struct {
 	Cluster               ClusterConfig           `yaml:"cluster"`
 	HelmApplications      []*HelmApplication      `yaml:"helmApplications"`
 	KustomizeApplications []*KustomizeApplication `yaml:"kustomizeApplications"`
+	PluginApplications    []*PluginApplication    `yaml:"pluginApplications"`
 }
 
 type ClusterConfig struct {
@@ -65,6 +66,18 @@ type KustomizeApplication struct {
 	Addon          *string `yaml:"addon"`
 }
 
+type PluginAddon struct {
+	Application `yaml:",inline"`
+	PluginName  string            `yaml:"plugin"`
+	PluginEnv   map[string]string `yaml:"env"`
+}
+
+type PluginApplication struct {
+	PluginAddon `yaml:",inline"`
+	Include     *string `yaml:"include"`
+	Addon       *string `yaml:"addon"`
+}
+
 type ProjectRole struct {
 	Name        string
 	Description string
@@ -95,6 +108,10 @@ type ApplicationViewModel struct {
 	Parameters             map[string]string
 	Namespace              string
 	OAuth2ProxyIngressHost string
+
+	// plugin specific
+	PluginName string
+	PluginEnv  map[string]string
 }
 
 type Oauth2ProxyIngress struct {

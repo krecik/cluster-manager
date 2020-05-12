@@ -13,7 +13,6 @@ import (
 	"strings"
 )
 
-
 func main() {
 	pkger.Include("/templates")
 
@@ -24,6 +23,7 @@ func main() {
 
 	var kustomizeApplications []*ApplicationViewModel
 	var helmApplications []*ApplicationViewModel
+	var pluginApplications []*ApplicationViewModel
 	var projectViewModels []*ProjectViewModel
 
 	files, err := ioutil.ReadDir(ClustersDir)
@@ -65,6 +65,14 @@ func main() {
 			helmApplications = append(helmApplications, argoApp)
 		}
 
+		for _, app := range clusterConfig.PluginApplications {
+			pluginApp, err := generatePluginApplication(app, clusterConfig, context)
+			if err != nil {
+				fatal("error while generating plugin application:", err)
+			}
+			pluginApplications = append(pluginApplications, pluginApp)
+		}
+
 		generatorApp, err := generateObjectsGeneratorApplication(clusterConfig, helmApplications)
 		if err != nil {
 			fatal("error while generating object generator application", err)
@@ -85,6 +93,10 @@ func main() {
 	for _, app := range helmApplications {
 		app.Values = indent(app.Values, "        ")
 		renderTemplate("/templates/app-helm.yaml", app)
+	}
+
+	for _, app := range pluginApplications {
+		renderTemplate("/templates/app-plugin.yaml", app)
 	}
 
 	for _, proj := range projectViewModels {
