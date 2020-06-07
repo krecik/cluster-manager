@@ -200,6 +200,12 @@ func generateObjectsGeneratorApplication(clusterConfig *ClusterConfigFile, appli
 	}
 
 	valuesStr := renderTemplateToString("/templates/objects-generator-values.yaml", values)
+	for i := 0; i < len(clusterConfig.Cluster.Settings); i++ { // run multiple times so settings can refer to other settings
+		for find, replace := range clusterConfig.Cluster.Settings {
+			findFmt := fmt.Sprintf("%%SETTINGS_%s", find)
+			valuesStr = strings.ReplaceAll(valuesStr, findFmt, replace)
+		}
+	}
 
 	app := &ApplicationViewModel{
 		Name:          ObjectsGeneratorAppName,

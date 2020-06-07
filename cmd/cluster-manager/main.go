@@ -21,11 +21,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var kustomizeApplications []*ApplicationViewModel
-	var helmApplications []*ApplicationViewModel
-	var pluginApplications []*ApplicationViewModel
-	var projectViewModels []*ProjectViewModel
-
 	files, err := ioutil.ReadDir(ClustersDir)
 	if err != nil {
 		log.Fatal(err)
@@ -48,6 +43,11 @@ func main() {
 		if err != nil {
 			fatal("unable to read cluster configuration:", err)
 		}
+
+		var kustomizeApplications []*ApplicationViewModel
+		var helmApplications []*ApplicationViewModel
+		var pluginApplications []*ApplicationViewModel
+		var projectViewModels []*ProjectViewModel
 
 		for _, app := range clusterConfig.KustomizeApplications {
 			appViewModel, err := generateKustomizeApplication(app, clusterConfig, context)
@@ -84,23 +84,23 @@ func main() {
 			fatal("error while generating project:", err)
 		}
 		projectViewModels = append(projectViewModels, appProject)
-	}
 
-	for _, app := range kustomizeApplications {
-		renderTemplate("/templates/app-kustomize.yaml", app)
-	}
+		for _, app := range kustomizeApplications {
+			renderTemplate("/templates/app-kustomize.yaml", app)
+		}
 
-	for _, app := range helmApplications {
-		app.Values = indent(app.Values, "        ")
-		renderTemplate("/templates/app-helm.yaml", app)
-	}
+		for _, app := range helmApplications {
+			app.Values = indent(app.Values, "        ")
+			renderTemplate("/templates/app-helm.yaml", app)
+		}
 
-	for _, app := range pluginApplications {
-		renderTemplate("/templates/app-plugin.yaml", app)
-	}
+		for _, app := range pluginApplications {
+			renderTemplate("/templates/app-plugin.yaml", app)
+		}
 
-	for _, proj := range projectViewModels {
-		renderTemplate("/templates/project.yaml", proj)
+		for _, proj := range projectViewModels {
+			renderTemplate("/templates/project.yaml", proj)
+		}
 	}
 }
 
