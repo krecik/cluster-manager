@@ -38,3 +38,12 @@ func dirExists(dirname string) bool {
 	}
 	return info.IsDir()
 }
+
+func sliceContainsString(array []string, str string) bool {
+	for _, s := range array {
+		if s == str {
+			return true
+		}
+	}
+	return false
+}

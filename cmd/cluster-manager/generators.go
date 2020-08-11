@@ -182,7 +182,9 @@ func generateObjectsGeneratorApplication(clusterConfig *ClusterConfigFile, appli
 
 	for _, app := range applications {
 		if app.Namespace != "default" && app.Namespace != "kube-system" {
-			namespaces = append(namespaces, app.Namespace)
+			if !sliceContainsString(namespaces, app.Namespace) {
+				namespaces = append(namespaces, app.Namespace)
+			}
 		}
 
 		if app.OAuth2ProxyIngressHost != "" {

@@ -15,6 +15,9 @@ import (
 func main() {
 	pkger.Include("/templates")
 
+	envClusters := os.Getenv("CLUSTERS")
+	clusters := strings.Split(envClusters, ",")
+
 	context, err := getContext()
 	if err != nil {
 		fatal(err)
@@ -28,6 +31,12 @@ func main() {
 	for _, f := range files {
 		if !f.IsDir() {
 			continue
+		}
+
+		if len(clusters) > 0 && envClusters != "" {
+			if !sliceContainsString(clusters, f.Name()) {
+				continue
+			}
 		}
 
 		processCluster(f.Name(), context)
