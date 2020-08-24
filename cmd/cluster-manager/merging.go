@@ -58,14 +58,14 @@ func mergeStructs(dst, src map[interface{}]interface{}) map[interface{}]interfac
 		} else if isTable(dv) {
 			log.Printf("warning: destination for %s is a table. Ignoring non-table value %v", key, val)
 		} else {
-			dst[key] = val
+			dst[key] = dv
 		}
 	}
 	return dst
 }
 
-func mergeDicts(dicts... map[string]string) map[string]string {
-	output := map[string]string {}
+func mergeDicts(dicts ...map[string]string) map[string]string {
+	output := map[string]string{}
 	for _, dict := range dicts {
 		for k, v := range dict {
 			output[k] = v
@@ -73,4 +73,3 @@ func mergeDicts(dicts... map[string]string) map[string]string {
 	}
 	return output
 }
-
