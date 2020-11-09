@@ -7,6 +7,8 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   {{- end }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: {{ .Project }}
   source:
