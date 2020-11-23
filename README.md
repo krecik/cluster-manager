@@ -48,7 +48,7 @@ helmApplications:
 # see below
 kustomizeApplications:
 # see below
-  
+
 ```
 
 ### Define kustomize application
@@ -62,4 +62,52 @@ kustomizeApplications:
 
 ## Installation on ArgoCD
 
-TODO
+When using a chart from https://github.com/argoproj/argo-helm/ (charts/argo-cd) alter your values.yaml file and set the following:
+
+```yaml
+repoServer:
+  volumes:
+  - name: custom-tools
+    emptyDir: {}
+
+  initContainers:
+  - name: download-tools
+    image: luktom/ws
+    command: [sh, -c]
+    args:
+    - |
+      rm -fr /custom-tools/kubecare-cluster-manager \
+      && git clone https://github.com/kubecare/cluster-manager /custom-tools/kubecare-cluster-manager \
+      && bash /custom-tools/kubecare-cluster-manager/scripts/init.sh
+    volumeMounts:
+    - mountPath: /custom-tools
+      name: custom-tools
+
+  volumeMounts:
+  - mountPath: /opt/kubecare-cluster-manager
+    name: custom-tools
+    subPath: kubecare-cluster-manager
+
+server:
+  config:
+    configManagementPlugins: |
+      - name: kubecare-cluster-manager
+        generate:
+          command: ["sh", "-c"]
+          args:
+          - |
+            p=$(pwd);
+            cd /opt/kubecare-cluster-manager/addons;
+            git pull > /dev/null;
+            cd $p;
+            /opt/kubecare-cluster-manager/kubecare-cluster-manager
+```
+
+Init container for repoServer does the following:
+- clones the repo with cluster manager
+- launches the script that downloads the newest version of cluster manager
+- and also checks out addons repository (https://github.com/kubecare/cluster-manager-addons)
+
+For server we configure custom config management plugin that:
+- updates addons repo for each generation of manifests (to provide newest version of configuration)
+- runs cluster manager to generate manifests
