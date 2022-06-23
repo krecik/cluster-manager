@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"path"
 	"strings"
@@ -118,11 +117,12 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 
 	repoUrl := fallbackString(app.RepoUrl, addon.RepoUrl, clusterConfig.Cluster.RepoUrl, &context.RepoUrl)
 	name := fallbackString(app.Name, addon.Name, app.Addon)
+	chart := fallbackString(app.Chart, nil)
 	releaseName := fallbackString(app.ReleaseName, addon.ReleaseName, app.Name, app.Addon)
 	namespace := fallbackStringWithDefault("default", app.Namespace, addon.Namespace, app.Name, app.Addon)
 	targetRevision := fallbackStringWithDefault("", app.TargetRevision, addon.TargetRevision)
 	oauth2ProxyIngressHost := fallbackStringWithDefault("", app.Oauth2ProxyIngressHost, addon.Oauth2ProxyIngressHost)
-	path := fallbackString(&app.Path, &addon.Path)
+	path := fallbackString(&app.Path, &addon.Path, nil)
 
 	// we merge app and addon values into app.Values
 	values := mergeStructs(app.Values, addon.Values)
@@ -157,6 +157,7 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 
 	appViewModel := &ApplicationViewModel{
 		Name:                   name,
+		Chart:                  chart,
 		Project:                clusterConfig.Cluster.Name,
 		CascadeDelete:          cascadeDelete,
 		RepoUrl:                repoUrl,

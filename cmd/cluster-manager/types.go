@@ -53,6 +53,7 @@ type HelmApplication struct {
 	HelmAddon `yaml:",inline"`
 	Include   *string  `yaml:"include"`
 	Addon     *string  `yaml:"addon"`
+	Chart     *string  `yaml:"chart"`
 	Overlays  []string `yaml:"overlays"`
 }
 
@@ -93,6 +94,7 @@ type ProjectViewModel struct {
 
 type ApplicationViewModel struct {
 	Name           string
+	Chart          string
 	Project        string
 	CascadeDelete  bool
 	RepoUrl        string
