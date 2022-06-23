@@ -51,6 +51,7 @@ type OverlayDefinition struct {
 
 type HelmApplication struct {
 	HelmAddon `yaml:",inline"`
+	Chart     string   `yaml:"chart"`
 	Include   *string  `yaml:"include"`
 	Addon     *string  `yaml:"addon"`
 	Overlays  []string `yaml:"overlays"`
@@ -102,6 +103,7 @@ type ApplicationViewModel struct {
 	TargetRevision string
 
 	// helm specific
+	Chart                  string
 	Values                 string
 	ValueFiles             []string
 	ReleaseName            string
