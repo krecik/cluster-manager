@@ -118,6 +118,7 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 
 	repoUrl := fallbackString(app.RepoUrl, addon.RepoUrl, clusterConfig.Cluster.RepoUrl, &context.RepoUrl)
 	name := fallbackString(app.Name, addon.Name, app.Addon)
+	chart := fallbackStringWithDefault("", &app.Chart)
 	releaseName := fallbackString(app.ReleaseName, addon.ReleaseName, app.Name, app.Addon)
 	namespace := fallbackStringWithDefault("default", app.Namespace, addon.Namespace, app.Name, app.Addon)
 	targetRevision := fallbackStringWithDefault("", app.TargetRevision, addon.TargetRevision)
@@ -157,6 +158,7 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 
 	appViewModel := &ApplicationViewModel{
 		Name:                   name,
+		Chart:                  chart,
 		Project:                clusterConfig.Cluster.Name,
 		CascadeDelete:          cascadeDelete,
 		RepoUrl:                repoUrl,

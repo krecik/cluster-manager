@@ -13,9 +13,14 @@ spec:
   project: {{ .Project }}
   source:
     repoURL: {{ .RepoUrl }}
+    {{- if eq .Chart "" }}
     path: {{ .Path }}
+    {{- end }}
     {{- if .TargetRevision }}
     targetRevision: {{ .TargetRevision }}
+    {{- end }}
+    {{- if .Chart }}
+    chart: {{ .Chart }}
     {{- end }}
     helm:
       releaseName: {{ .ReleaseName }}
