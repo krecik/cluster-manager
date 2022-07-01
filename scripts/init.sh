@@ -19,14 +19,11 @@ wget $(curl -s https://api.github.com/repos/krecik/cluster-manager/releases/late
 
 echo "==> Updating addons"
 
-if [ -e addons ]
-then
-  cd addons
-  git pull
-else
-  git clone https://github.com/krecik/cluster-manager-addons.git addons
-  chmod -R a+w addons # to allow future updates of the repo
-fi
+rm -fr addons
+curl -LJO https://github.com/krecik/cluster-manager-addons/archive/refs/heads/master.zip
+unzip cluster-manager-addons.zip
+mv cluster-manager-addons addons
+chmod -R a+w addons
 
 echo "==> Done"
 
