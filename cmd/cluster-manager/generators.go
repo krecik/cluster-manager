@@ -123,7 +123,11 @@ func generateHelmApplication(app *HelmApplication, clusterConfig *ClusterConfigF
 	namespace := fallbackStringWithDefault("default", app.Namespace, addon.Namespace, app.Name, app.Addon)
 	targetRevision := fallbackStringWithDefault("", app.TargetRevision, addon.TargetRevision)
 	oauth2ProxyIngressHost := fallbackStringWithDefault("", app.Oauth2ProxyIngressHost, addon.Oauth2ProxyIngressHost)
-	path := fallbackString(&app.Path, &addon.Path)
+	if chart == "" {
+		path := fallbackString(&app.Path, &addon.Path)
+	} else {
+		path := ""
+	}
 
 	// we merge app and addon values into app.Values
 	values := mergeStructs(app.Values, addon.Values)
