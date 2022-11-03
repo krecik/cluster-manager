@@ -21,8 +21,8 @@ echo "==> Updating addons"
 
 rm -fr addons
 curl -LJO https://github.com/krecik/cluster-manager-addons/archive/refs/heads/master.zip
-unzip cluster-manager-addons.zip
-mv cluster-manager-addons addons
+unzip cluster-manager-addons-master.zip
+mv cluster-manager-addons-master addons
 chmod -R a+w addons
 
 echo "==> Done"
